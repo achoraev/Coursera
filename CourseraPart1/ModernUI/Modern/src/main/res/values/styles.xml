@@ -1,0 +1,19 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat">
+        <item name="android:actionBarStyle">@style/MyCustomActionBarTheme</item>
+        <item name="actionBarStyle">@style/MyCustomActionBarTheme</item>
+    </style>
+
+    <style name="MyCustomActionBarTheme" parent="Widget.AppCompat.ActionBar">
+        <item name="android:background">@color/actionbar_background</item>
+        <item name="background">@color/actionbar_background</item>
+    </style>
+
+    <style name="MyCustomAlertTheme" parent="Theme.AppCompat.Dialog.Alert">
+        <item name="android:background">@color/actionbar_background</item>
+        <item name="background">@color/actionbar_background</item>
+    </style>
+
+</resources>

@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">MyModernUI</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="more_info">More Information</string>
+    <string name="alert_msg">Click below to learn more!</string>
+    <string name="not_now">Not now</string>
+    <string name="visit_moma">Visit MOMA</string>
+    <string name="alert_title">Inspired by the works of artists such as Piet Mondrian and Ben Nicholson.</string>
+    <string name="activity_title">Modern Art UI</string>
+</resources>
