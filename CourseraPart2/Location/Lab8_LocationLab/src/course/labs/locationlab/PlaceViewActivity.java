@@ -34,6 +34,7 @@ public class PlaceViewActivity extends ListActivity implements LocationListener 
 
     // A fake location provider used for testing
     private MockLocationProvider mMockLocationProvider;
+    View footerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,7 +48,7 @@ public class PlaceViewActivity extends ListActivity implements LocationListener 
 
         // TO DO - add a footerView to the ListView
         // You can use footer_view.xml to define the footer
-        View footerView = findViewById(R.id.footer);
+        footerView = getLayoutInflater().inflate(R.layout.footer_view, null);
         placesListView.addFooterView(footerView);
 
         // TODO - footerView must respond to user clicks, handling 3 cases:
@@ -70,14 +71,15 @@ public class PlaceViewActivity extends ListActivity implements LocationListener 
             @Override
             public void onClick(View arg0) {
                 if (mLastLocationReading != null) {
-                    if (new PlaceViewAdapter(PlaceViewActivity.this).intersects(mLastLocationReading)) {
-                        Toast.makeText(PlaceViewActivity.this, getString(R.string.duplicate_location_string), Toast.LENGTH_LONG).show();
+                    if (mAdapter.intersects(mLastLocationReading)) {
+                        Toast.makeText(getApplicationContext(),
+                                getString(R.string.duplicate_location_string), Toast.LENGTH_SHORT).show();
                     } else {
                         PlaceDownloaderTask newTask = new PlaceDownloaderTask(PlaceViewActivity.this, true);
-                        newTask.doInBackground(mLastLocationReading);
+                        newTask.execute(mLastLocationReading);
                     }
                 } else {
-                    footerView.setClickable(false);
+                    footerView.setEnabled(false);
                 }
             }
         });
@@ -85,7 +87,6 @@ public class PlaceViewActivity extends ListActivity implements LocationListener 
         placesListView.addFooterView(footerView);
         mAdapter = new PlaceViewAdapter(getApplicationContext());
         setListAdapter(mAdapter);
-
     }
 
     @Override
@@ -96,7 +97,7 @@ public class PlaceViewActivity extends ListActivity implements LocationListener 
 
         // TO DO - Check NETWORK_PROVIDER for an existing location reading.
         // Only keep this last reading if it is fresh - less than 5 minutes old
-        if (mLocationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER).getTime() < FIVE_MINS) {
+        if (mLocationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
             mLastLocationReading = mLocationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
         }
 
@@ -136,10 +137,21 @@ public class PlaceViewActivity extends ListActivity implements LocationListener 
 
         if (place == null) {
             Toast.makeText(PlaceViewActivity.this, "PlaceBadge could not be acquired", Toast.LENGTH_LONG).show();
-        } else if(place.getCountryName() == null){
+            return;
+        }
+
+        if (place.getCountryName().isEmpty() || place.getCountryName().equals(null)) {
             Toast.makeText(PlaceViewActivity.this, getString(R.string.no_country_string), Toast.LENGTH_LONG).show();
-        } else {
-            // add to adapter
+            return;
+        }
+
+        if (new PlaceViewAdapter(PlaceViewActivity.this).intersects(place.getLocation())) {
+            Toast.makeText(PlaceViewActivity.this, getString(R.string.duplicate_location_string), Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        if (place.getLocation().getLatitude() != 0 && place.getLocation().getLongitude() != 0) {
+            mAdapter.add(place);
         }
     }
 
@@ -154,10 +166,12 @@ public class PlaceViewActivity extends ListActivity implements LocationListener 
         // the current location
         // 3) If the current location is newer than the last locations, keep the
         // current location.
-        if (mLastLocationReading == null) {
+        if (mLastLocationReading == null && ageInMilliseconds(currentLocation) < FIVE_MINS) {
             mLastLocationReading = currentLocation;
-        } else if (ageInMilliseconds(currentLocation) < FIVE_MINS) {
+            footerView.setEnabled(true);
+        } else if(ageInMilliseconds(currentLocation) < ageInMilliseconds(mLastLocationReading)) {
             mLastLocationReading = currentLocation;
+            footerView.setEnabled(true);
         }
     }
 
