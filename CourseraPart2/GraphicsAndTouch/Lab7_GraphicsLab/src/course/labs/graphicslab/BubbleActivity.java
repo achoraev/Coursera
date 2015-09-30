@@ -1,11 +1,5 @@
 package course.labs.graphicslab;
 
-import java.util.Random;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
-
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -15,9 +9,14 @@ import android.graphics.Paint;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.*;
 import android.widget.RelativeLayout;
+
+import java.util.Random;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 public class BubbleActivity extends Activity {
 
@@ -301,7 +300,7 @@ public class BubbleActivity extends Activity {
 					// Otherwise, request that the BubbleView be redrawn. 
 					if(moveWhileOnScreen()){
 						BubbleView.this.stop(false);
-						mFrame.removeView(BubbleView.this);
+//						mFrame.removeView(BubbleView.this);
 					}
 
 					BubbleView.this.postInvalidate();
