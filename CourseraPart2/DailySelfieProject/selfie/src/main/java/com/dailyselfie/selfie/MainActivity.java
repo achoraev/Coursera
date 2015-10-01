@@ -41,7 +41,7 @@ public class MainActivity extends ListActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
-        menu.getItem(R.id.camera).setIcon(R.drawable.ic_menu_camera);
+//        menu.getItem(R.id.camera).setIcon(R.drawable.ic_menu_camera);
         return true;
     }
 

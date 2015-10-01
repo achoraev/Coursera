@@ -4,5 +4,6 @@
       tools:context=".MainActivity">
       <item android:id="@+id/camera"
             android:title="Camera"
+            android:icon="@android:drawable/ic_menu_camera"
             app:showAsAction="always"/>
 </menu>
