@@ -2,6 +2,7 @@ package com.dailyselfie.selfie;
 
 import android.app.ListActivity;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -22,8 +23,8 @@ import java.util.Date;
 public class MainActivity extends ListActivity {
 
     private static final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 100;
-    public static final int MEDIA_TYPE_IMAGE = 1;
-    private ArrayList<Uri> listObjects;
+    public static final int REQUEST_IMAGE_CAPTURE = 1;
+    private ArrayList<Bitmap> listObjects = new ArrayList<Bitmap>();
     private Uri fileUri;
     ListView listView;
 
@@ -33,8 +34,6 @@ public class MainActivity extends ListActivity {
         setContentView(R.layout.activity_main);
 
         listView = (ListView) findViewById(android.R.id.list);
-
-        listObjects = new ArrayList<Uri>();
     }
 
 
@@ -56,12 +55,9 @@ public class MainActivity extends ListActivity {
         if (id == R.id.camera) {
             Intent camera = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
-            fileUri = getOutputMediaFileUri(MEDIA_TYPE_IMAGE); // create a file to save the image
-            camera.putExtra(MediaStore.EXTRA_OUTPUT, fileUri); // set the image file name
-//            Bundle bundle = new Bundle();
-//            bundle.p(MediaStore.EXTRA_OUTPUT, fileUri);
-//            startActivityForResult(camera, CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE, bundle);
-            startActivityForResult(camera, CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE);
+            fileUri = getOutputMediaFileUri(REQUEST_IMAGE_CAPTURE); // create a file to save the image
+//            camera.putExtra(MediaStore.EXTRA_OUTPUT, fileUri); // set the image file name
+            startActivityForResult(camera, REQUEST_IMAGE_CAPTURE);
         }
 
         return super.onOptionsItemSelected(item);
@@ -70,17 +66,23 @@ public class MainActivity extends ListActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE) {
-            if (resultCode == RESULT_OK) {
-                // Image captured and saved to fileUri specified in the Intent
-                Toast.makeText(this, "Image saved to:\n" + fileUri.toString(), Toast.LENGTH_LONG).show();
-                listObjects.add(fileUri);
-            } else if (resultCode == RESULT_CANCELED) {
-                // User cancelled the image capture
-            } else {
-                // Image capture failed, advise user
-            }
+        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+            Bundle extras = data.getExtras();
+            Bitmap imageBitmap = (Bitmap) extras.get("data");
+            listObjects.add(imageBitmap);
         }
+
+//        if (requestCode == REQUEST_IMAGE_CAPTURE) {
+//            if (resultCode == RESULT_OK) {
+//                // Image captured and saved to fileUri specified in the Intent
+//                Toast.makeText(this, "Image saved to:\n" + fileUri.toString(), Toast.LENGTH_LONG).show();
+//                listObjects.add(fileUri);
+//            } else if (resultCode == RESULT_CANCELED) {
+//                // User cancelled the image capture
+//            } else {
+//                // Image capture failed, advise user
+//            }
+//        }
 
         SelfieAdapter adapter = new SelfieAdapter(this, R.layout.selfie_row,
                 listObjects);
@@ -118,7 +120,7 @@ public class MainActivity extends ListActivity {
         // Create a media file name
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         File mediaFile;
-        if (type == MEDIA_TYPE_IMAGE){
+        if (type == REQUEST_IMAGE_CAPTURE){
             mediaFile = new File(mediaStorageDir.getPath() + File.separator +
                     "IMG_"+ timeStamp + ".jpg");
         } else {

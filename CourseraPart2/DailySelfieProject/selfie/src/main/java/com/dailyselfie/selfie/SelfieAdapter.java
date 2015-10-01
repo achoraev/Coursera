@@ -2,7 +2,7 @@ package com.dailyselfie.selfie;
 
 import android.app.Activity;
 import android.content.Context;
-import android.net.Uri;
+import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,9 +18,9 @@ import java.util.ArrayList;
 public class SelfieAdapter extends ArrayAdapter {
     private Context context;
     private int resourseId;
-    private ArrayList<Uri> dataList;
+    private ArrayList<Bitmap> dataList;
 
-    public SelfieAdapter(Context context, int resource, ArrayList<Uri> objects) {
+    public SelfieAdapter(Context context, int resource, ArrayList<Bitmap> objects) {
         super(context, resource, objects);
         this.context = context;
         resourseId = resource;
@@ -33,14 +33,9 @@ public class SelfieAdapter extends ArrayAdapter {
         View rowView = inflater.inflate(resourseId, parent, false);
         ImageView img = (ImageView) rowView.findViewById(R.id.selfie_picture);
         TextView time = (TextView) rowView.findViewById(R.id.timestamp);
-        img.setImageURI(dataList.get(position));
+
+        img.setImageBitmap(dataList.get(position));
         time.setText(String.valueOf(System.currentTimeMillis()));
-//        username = (TextView) rowView.findViewById(R.id.text_username);
-//        post = (TextView) rowView.findViewById(R.id.text_post);
-//        date = (TextView) rowView.findViewById(R.id.text_date);
-//        username.setText(dataList.get(position).getUsername());
-//        post.setText(dataList.get(position).getNote());
-//        date.setText(dataList.get(position).getDateCreated());
 
         return rowView;
     }
