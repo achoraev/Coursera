@@ -37,11 +37,11 @@ public class MainActivity extends ListActivity {
         listView = (ListView) findViewById(android.R.id.list);
     }
 
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
+        menu.getItem(R.id.camera).setIcon(R.drawable.ic_menu_camera);
         return true;
     }
 
@@ -97,6 +97,32 @@ public class MainActivity extends ListActivity {
         startActivity(viewIntent);
 
         Toast.makeText(MainActivity.this, String.valueOf(position), Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle state) {
+        super.onRestoreInstanceState(state);
+//        mImageBitmap = savedInstanceState.getParcelable(BITMAP_STORAGE_KEY);
+//        mVideoUri = savedInstanceState.getParcelable(VIDEO_STORAGE_KEY);
+//        mImageView.setImageBitmap(mImageBitmap);
+//        mImageView.setVisibility(
+//                savedInstanceState.getBoolean(IMAGEVIEW_VISIBILITY_STORAGE_KEY) ?
+//                        ImageView.VISIBLE : ImageView.INVISIBLE
+//        );
+//        mVideoView.setVideoURI(mVideoUri);
+//        mVideoView.setVisibility(
+//                savedInstanceState.getBoolean(VIDEOVIEW_VISIBILITY_STORAGE_KEY) ?
+//                        ImageView.VISIBLE : ImageView.INVISIBLE
+//        );
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+//        outState.putParcelable(BITMAP_STORAGE_KEY, mImageBitmap);
+//        outState.putParcelable(VIDEO_STORAGE_KEY, mVideoUri);
+//        outState.putBoolean(IMAGEVIEW_VISIBILITY_STORAGE_KEY, (mImageBitmap != null) );
+//        outState.putBoolean(VIDEOVIEW_VISIBILITY_STORAGE_KEY, (mVideoUri != null) );
+        super.onSaveInstanceState(outState);
     }
 
     private static Uri getOutputMediaFileUri(int type) {
