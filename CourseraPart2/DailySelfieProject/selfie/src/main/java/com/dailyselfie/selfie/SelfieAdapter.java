@@ -2,7 +2,6 @@ package com.dailyselfie.selfie;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,9 +17,9 @@ import java.util.ArrayList;
 public class SelfieAdapter extends ArrayAdapter {
     private Context context;
     private int resourseId;
-    private ArrayList<Bitmap> dataList;
+    private ArrayList<Selfie> dataList;
 
-    public SelfieAdapter(Context context, int resource, ArrayList<Bitmap> objects) {
+    public SelfieAdapter(Context context, int resource, ArrayList<Selfie> objects) {
         super(context, resource, objects);
         this.context = context;
         resourseId = resource;
@@ -34,8 +33,8 @@ public class SelfieAdapter extends ArrayAdapter {
         ImageView img = (ImageView) rowView.findViewById(R.id.selfie_picture);
         TextView time = (TextView) rowView.findViewById(R.id.timestamp);
 
-        img.setImageBitmap(dataList.get(position));
-        time.setText(String.valueOf(System.currentTimeMillis()));
+        img.setImageBitmap(dataList.get(position).getBitmap());
+        time.setText(dataList.get(position).getUri().getPath());
 
         return rowView;
     }
