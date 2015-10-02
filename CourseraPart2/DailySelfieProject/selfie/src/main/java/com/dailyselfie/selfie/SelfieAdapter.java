@@ -29,10 +29,13 @@ public class SelfieAdapter extends ArrayAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         LayoutInflater inflater = ((Activity)context).getLayoutInflater();
+
         View rowView = inflater.inflate(resourseId, parent, false);
+
         ImageView img = (ImageView) rowView.findViewById(R.id.selfie_picture);
         TextView time = (TextView) rowView.findViewById(R.id.timestamp);
 
+        img.setScaleType(ImageView.ScaleType.FIT_XY);
         img.setImageBitmap(dataList.get(position).getBitmap());
         time.setText(dataList.get(position).getUri().getPath());
 
