@@ -1,6 +1,8 @@
 package com.dailyselfie.selfie;
 
+import android.app.AlarmManager;
 import android.app.ListActivity;
+import android.app.PendingIntent;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -13,7 +15,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -28,6 +29,12 @@ public class MainActivity extends ListActivity {
     private Uri fileUri;
     ListView listView;
     public static String timeStamp;
+    private AlarmManager mAlarmManager;
+    private Intent mNotificationReceiverIntent;
+    private PendingIntent mNotificationReceiverPendingIntent;
+
+    private final long TWO_MINUTES = 2 * 60 * 1000;
+//    AlarmReceiver alarm = new AlarmReceiver();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +42,24 @@ public class MainActivity extends ListActivity {
         setContentView(R.layout.activity_main);
 
         listView = (ListView) findViewById(android.R.id.list);
+//        alarm.setAlarm(MainActivity.this);
+
+        // alarm
+        // Get the AlarmManager Service
+        mAlarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+
+        // Create an Intent to broadcast to the AlarmNotificationReceiver
+        mNotificationReceiverIntent = new Intent(MainActivity.this,
+                AlarmNotificationReceiver.class);
+
+        // Create an PendingIntent that holds the NotificationReceiverIntent
+        mNotificationReceiverPendingIntent = PendingIntent.getBroadcast(
+                MainActivity.this, 0, mNotificationReceiverIntent, 0);
+
+        mAlarmManager.setRepeating(AlarmManager.RTC_WAKEUP,
+                System.currentTimeMillis() + TWO_MINUTES,
+                TWO_MINUTES,
+                mNotificationReceiverPendingIntent);
     }
 
     @Override
@@ -95,8 +120,6 @@ public class MainActivity extends ListActivity {
         Intent viewIntent = new Intent(Intent.ACTION_VIEW);
         viewIntent.setDataAndType(listObjects.get(position).getUri(), "image/*");
         startActivity(viewIntent);
-
-        Toast.makeText(MainActivity.this, String.valueOf(position), Toast.LENGTH_LONG).show();
     }
 
     @Override
@@ -123,6 +146,12 @@ public class MainActivity extends ListActivity {
 //        outState.putBoolean(IMAGEVIEW_VISIBILITY_STORAGE_KEY, (mImageBitmap != null) );
 //        outState.putBoolean(VIDEOVIEW_VISIBILITY_STORAGE_KEY, (mVideoUri != null) );
         super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public void onBackPressed() {
+//        alarm.setAlarm(MainActivity.this);
+        super.onBackPressed();
     }
 
     private static Uri getOutputMediaFileUri(int type) {

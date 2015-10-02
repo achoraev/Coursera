@@ -35,9 +35,8 @@ public class SelfieAdapter extends ArrayAdapter {
         ImageView img = (ImageView) rowView.findViewById(R.id.selfie_picture);
         TextView time = (TextView) rowView.findViewById(R.id.timestamp);
 
-        img.setScaleType(ImageView.ScaleType.FIT_XY);
-        img.setImageBitmap(dataList.get(position).getBitmap());
-        time.setText(dataList.get(position).getUri().getPath());
+        img.setImageURI(dataList.get(position).getUri());
+        time.setText(String.valueOf(System.currentTimeMillis()));
 
         return rowView;
     }
