@@ -9,6 +9,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.SystemClock;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Menu;
@@ -17,6 +18,7 @@ import android.view.View;
 import android.widget.ListView;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -33,7 +35,7 @@ public class MainActivity extends ListActivity {
     private Intent mNotificationReceiverIntent;
     private PendingIntent mNotificationReceiverPendingIntent;
 
-    private final long TWO_MINUTES = 2 * 60 * 1000;
+    private final long TWO_MINUTES = 2 * 60 * 1000L;
 //    AlarmReceiver alarm = new AlarmReceiver();
 
     @Override
@@ -42,7 +44,6 @@ public class MainActivity extends ListActivity {
         setContentView(R.layout.activity_main);
 
         listView = (ListView) findViewById(android.R.id.list);
-//        alarm.setAlarm(MainActivity.this);
 
         // alarm
         // Get the AlarmManager Service
@@ -56,9 +57,9 @@ public class MainActivity extends ListActivity {
         mNotificationReceiverPendingIntent = PendingIntent.getBroadcast(
                 MainActivity.this, 0, mNotificationReceiverIntent, 0);
 
-        mAlarmManager.setRepeating(AlarmManager.RTC_WAKEUP,
-                System.currentTimeMillis() + TWO_MINUTES,
-                TWO_MINUTES,
+        mAlarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME,
+                SystemClock.elapsedRealtime() + TWO_MINUTES,
+                AlarmManager.INTERVAL_FIFTEEN_MINUTES,
                 mNotificationReceiverPendingIntent);
     }
 
@@ -66,7 +67,6 @@ public class MainActivity extends ListActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
-//        menu.getItem(R.id.camera).setIcon(R.drawable.ic_menu_camera);
         return true;
     }
 
@@ -95,11 +95,17 @@ public class MainActivity extends ListActivity {
 
         if (requestCode == REQUEST_IMAGE_CAPTURE) {
             if (resultCode == RESULT_OK) {
-                String imageInSD = Environment.getExternalStorageDirectory().getAbsolutePath() + "/SelfieApp/" + timeStamp + ".jpg";
-                Bitmap bitmap = BitmapFactory.decodeFile(imageInSD);
+                Bitmap bitmap2 = null;
+
+                try {
+                    bitmap2 = MediaStore.Images.Media.getBitmap(MainActivity.this.getContentResolver(), fileUri);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
                 Selfie curSelf = new Selfie();
                 curSelf.setUri(fileUri);
-                curSelf.setBitmap(bitmap);
+                curSelf.setBitmap(bitmap2);
                 listObjects.add(curSelf);
             } else if (resultCode == RESULT_CANCELED) {
                 // User cancelled the image capture
@@ -150,7 +156,6 @@ public class MainActivity extends ListActivity {
 
     @Override
     public void onBackPressed() {
-//        alarm.setAlarm(MainActivity.this);
         super.onBackPressed();
     }
 
@@ -159,19 +164,17 @@ public class MainActivity extends ListActivity {
     }
 
     private static File getOutputMediaFile(int type) {
-        // To be safe, you should check that the SDCard is mounted
-        // using Environment.getExternalStorageState() before doing this.
+        File mediaStorageDir = null;
+        if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
+            mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
+                    Environment.DIRECTORY_PICTURES), "SelfieApp");
 
-        File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES), "SelfieApp");
-        // This location works best if you want the created images to be shared
-        // between applications and persist after your app has been uninstalled.
-
-        // Create the storage directory if it does not exist
-        if (!mediaStorageDir.exists()) {
-            if (!mediaStorageDir.mkdirs()) {
-                Log.d("SelfieApp", "failed to create directory");
-                return null;
+            // Create the storage directory if it does not exist
+            if (!mediaStorageDir.exists()) {
+                if (!mediaStorageDir.mkdirs()) {
+                    Log.d("SelfieApp", "failed to create directory");
+                    return null;
+                }
             }
         }
 
