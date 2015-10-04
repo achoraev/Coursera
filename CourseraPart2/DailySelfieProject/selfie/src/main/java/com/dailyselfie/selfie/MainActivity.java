@@ -6,9 +6,11 @@ import android.app.PendingIntent;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Parcelable;
 import android.os.SystemClock;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -16,6 +18,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,12 +39,15 @@ public class MainActivity extends ListActivity {
     private PendingIntent mNotificationReceiverPendingIntent;
 
     private final long TWO_MINUTES = 2 * 60 * 1000L;
-//    AlarmReceiver alarm = new AlarmReceiver();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+//        if (savedInstanceState != null) {
+//            onRestoreInstanceState(savedInstanceState);
+//        }
 
         listView = (ListView) findViewById(android.R.id.list);
 
@@ -57,10 +63,6 @@ public class MainActivity extends ListActivity {
         mNotificationReceiverPendingIntent = PendingIntent.getBroadcast(
                 MainActivity.this, 0, mNotificationReceiverIntent, 0);
 
-        mAlarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME,
-                SystemClock.elapsedRealtime() + TWO_MINUTES,
-                AlarmManager.INTERVAL_FIFTEEN_MINUTES,
-                mNotificationReceiverPendingIntent);
     }
 
     @Override
@@ -77,7 +79,6 @@ public class MainActivity extends ListActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.camera) {
             Intent camera = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
@@ -95,22 +96,22 @@ public class MainActivity extends ListActivity {
 
         if (requestCode == REQUEST_IMAGE_CAPTURE) {
             if (resultCode == RESULT_OK) {
-                Bitmap bitmap2 = null;
+                Bitmap bitmap = null;
 
                 try {
-                    bitmap2 = MediaStore.Images.Media.getBitmap(MainActivity.this.getContentResolver(), fileUri);
+                    bitmap = MediaStore.Images.Media.getBitmap(MainActivity.this.getContentResolver(), fileUri);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
 
                 Selfie curSelf = new Selfie();
                 curSelf.setUri(fileUri);
-                curSelf.setBitmap(bitmap2);
+                curSelf.setBitmap(bitmap);
                 listObjects.add(curSelf);
             } else if (resultCode == RESULT_CANCELED) {
-                // User cancelled the image capture
+                Toast.makeText(MainActivity.this, "User cancel operation.", Toast.LENGTH_SHORT).show();
             } else {
-                // Image capture failed, advise user
+                Toast.makeText(MainActivity.this, "Capture failed.", Toast.LENGTH_SHORT).show();
             }
         }
 
@@ -131,31 +132,21 @@ public class MainActivity extends ListActivity {
     @Override
     protected void onRestoreInstanceState(Bundle state) {
         super.onRestoreInstanceState(state);
-//        mImageBitmap = savedInstanceState.getParcelable(BITMAP_STORAGE_KEY);
-//        mVideoUri = savedInstanceState.getParcelable(VIDEO_STORAGE_KEY);
-//        mImageView.setImageBitmap(mImageBitmap);
-//        mImageView.setVisibility(
-//                savedInstanceState.getBoolean(IMAGEVIEW_VISIBILITY_STORAGE_KEY) ?
-//                        ImageView.VISIBLE : ImageView.INVISIBLE
-//        );
-//        mVideoView.setVideoURI(mVideoUri);
-//        mVideoView.setVisibility(
-//                savedInstanceState.getBoolean(VIDEOVIEW_VISIBILITY_STORAGE_KEY) ?
-//                        ImageView.VISIBLE : ImageView.INVISIBLE
-//        );
+        listObjects = state.getParcelableArrayList("Selfies");
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-//        outState.putParcelable(BITMAP_STORAGE_KEY, mImageBitmap);
-//        outState.putParcelable(VIDEO_STORAGE_KEY, mVideoUri);
-//        outState.putBoolean(IMAGEVIEW_VISIBILITY_STORAGE_KEY, (mImageBitmap != null) );
-//        outState.putBoolean(VIDEOVIEW_VISIBILITY_STORAGE_KEY, (mVideoUri != null) );
+        outState.putParcelableArrayList("Selfies", listObjects);
         super.onSaveInstanceState(outState);
     }
 
     @Override
     public void onBackPressed() {
+        mAlarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME,
+                SystemClock.elapsedRealtime() + TWO_MINUTES,
+                TWO_MINUTES,
+                mNotificationReceiverPendingIntent);
         super.onBackPressed();
     }
 
